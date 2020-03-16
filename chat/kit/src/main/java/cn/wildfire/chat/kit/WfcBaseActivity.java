@@ -9,12 +9,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MenuRes;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,6 +26,8 @@ import cn.wildfirechat.chat.R;
 public abstract class WfcBaseActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.toolbar_title)
+    TextView titleTv;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,11 +36,40 @@ public abstract class WfcBaseActivity extends AppCompatActivity {
         beforeViews();
         setContentView(contentLayout());
         ButterKnife.bind(this);
+        if (toolbar.getOverflowIcon() != null) {
+            DrawableCompat.setTint(toolbar.getOverflowIcon(), getResources().getColor(R.color.gray15));
+        }
         setSupportActionBar(toolbar);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_back);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         if (showHomeMenuItem()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        titleTv.setText(getTitle());
+        setTitleBackgroundResource(R.color.gray5);
         afterViews();
+    }
+
+    /**
+     * 设置状态栏和标题栏的颜色
+     *
+     * @param resId 颜色资源id
+     */
+    protected void setTitleBackgroundResource(int resId) {
+        toolbar.setBackgroundResource(resId);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(ContextCompat.getColor(this, resId));
+        }
+    }
+
+    protected void setTitleTextColor(int color) {
+        titleTv.setTextColor(color);
+    }
+
+    @Override
+    protected void onTitleChanged(CharSequence title, int color) {
+        super.onTitleChanged(title, color);
+        titleTv.setText(getTitle());
     }
 
     @Override
